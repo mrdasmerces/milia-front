@@ -1,77 +1,99 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-import React, { Component, Fragment } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import { StatusBar } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import { StackActions, NavigationActions } from 'react-navigation';
+
+import MiliaService from '../../services/api';
 
 import {
-  Header,
-  LearnMoreLinks,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  Container,
+  Logo,
+  Input,
+  ErrorMessage,
+  Button,
+  ButtonText,
+} from './styles';
 
-import styles from './styles';
+export default class SignIn extends Component {
+  static navigationOptions = {
+    title: 'Login',
+  };
 
-class SignIn extends Component {
+  static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+      dispatch: PropTypes.func,
+    }).isRequired,
+  };
+
+  state = {
+    email: '',
+    password: '',
+    error: '',
+  };
+
+  miliaService = new MiliaService();
+
+  handleEmailChange = (email) => {
+    this.setState({ email });
+  };
+
+  handlePasswordChange = (password) => {
+    this.setState({ password });
+  };
+
+  handleSignInPress = async () => {
+    if (this.state.email.length === 0 || this.state.password.length === 0) {
+      this.setState({ error: 'Preencha usuário e senha para continuar!' }, () => false);
+    } else {
+      try {
+        const response = await this.miliaService.authenticate(this.state.email, this.state.password);
+
+        alert('Autenticado!!!');
+        await AsyncStorage.setItem('@Milia:token', response.data.token);
+
+        const resetAction = StackActions.reset({
+          index: 0,
+          actions: [
+            NavigationActions.navigate({ routeName: 'Main' }),
+          ],
+        });
+        this.props.navigation.dispatch(resetAction);
+      } catch (_err) {
+        console.log(_err);
+        this.setState({ error: 'Houve um problema com o login, verifique suas credenciais!' });
+      }
+    }
+  };
+
   render() {
-    return(
-      <Fragment>
-        <StatusBar barStyle="dark-content" />
-        <SafeAreaView>
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.scrollView}>
-            <Header />
-            {global.HermesInternal == null ? null : (
-              <View style={styles.engine}>
-                <Text style={styles.footer}>Engine: Hermes</Text>
-              </View>
-            )}
-            <View style={styles.body}>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Step Login</Text>
-                <Text style={styles.sectionDescription}>
-                  Edit <Text style={styles.highlight}>App.js</Text> to change this
-                  screen and then come back to see your edits.
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>See Your Changes</Text>
-                <Text style={styles.sectionDescription}>
-                  <ReloadInstructions />
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Debug</Text>
-                <Text style={styles.sectionDescription}>
-                  <DebugInstructions />
-                </Text>
-              </View>
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Learn More</Text>
-                <Text style={styles.sectionDescription}>
-                  Read the docs to discover what to do next:
-                </Text>
-              </View>
-              <LearnMoreLinks />
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-      </Fragment>
+    return (
+      <Container>
+        <StatusBar hidden />
+        <Logo source={require('../../images/milia_avatar.png')} resizeMode="contain" />
+        <Input
+          placeholder="Endereço de e-mail"
+          value={this.state.email}
+          onChangeText={this.handleEmailChange}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <Input
+          placeholder="Senha"
+          value={this.state.password}
+          onChangeText={this.handlePasswordChange}
+          autoCapitalize="none"
+          autoCorrect={false}
+          secureTextEntry
+        />
+        {this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage>}
+        <Button onPress={this.handleSignInPress}>
+          <ButtonText>Entrar</ButtonText>
+        </Button>
+      </Container>
     );
   }
-};
-
-export default SignIn;
+}

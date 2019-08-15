@@ -26,7 +26,7 @@ import styles from './styles';
 
 class Main extends Component {
   static navigationOptions = {
-    header: null,
+    headerBackTitle: 'Início',
   };
 
   render() {

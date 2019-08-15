@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 class MiliaService {
+  static api;
+
   constructor(){
-    const api = axios.create({
+    api = axios.create({
       baseURL: 'https://909qolbumk.execute-api.us-east-1.amazonaws.com/dev',
+      //baseURL: 'http://localhost:3001',
     });
 
     api.interceptors.request.use(async (config) => {
