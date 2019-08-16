@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import { StackActions, NavigationActions } from 'react-navigation';
 
 import MiliaService from '../../services/api';
+
+import Loader from '../../common/loader';
 
 import {
   Container,
@@ -33,6 +34,7 @@ export default class SignIn extends Component {
     email: '',
     password: '',
     error: '',
+    loading: false,
   };
 
   miliaService = new MiliaService();
@@ -50,10 +52,14 @@ export default class SignIn extends Component {
       this.setState({ error: 'Preencha usuário e senha para continuar!' }, () => false);
     } else {
       try {
+
+        this.setState({ loading: true });
+
         const response = await this.miliaService.authenticate(this.state.email, this.state.password);
 
-        alert('Autenticado!!!');
         await AsyncStorage.setItem('@Milia:token', response.data.token);
+
+        this.setState({ loading: false });
 
         const resetAction = StackActions.reset({
           index: 0,
@@ -61,9 +67,12 @@ export default class SignIn extends Component {
             NavigationActions.navigate({ routeName: 'Main' }),
           ],
         });
+
         this.props.navigation.dispatch(resetAction);
       } catch (_err) {
         console.log(_err);
+        this.setState({ loading: false });
+
         this.setState({ error: 'Houve um problema com o login, verifique suas credenciais!' });
       }
     }
@@ -72,7 +81,10 @@ export default class SignIn extends Component {
   render() {
     return (
       <Container>
-        <StatusBar hidden />
+        {this.state.loading && 
+        <Loader
+          loading={this.state.loading} />
+        }
         <Logo source={require('../../images/milia_avatar.png')} resizeMode="contain" />
         <Input
           placeholder="Endereço de e-mail"

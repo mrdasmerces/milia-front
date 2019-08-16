@@ -47,16 +47,4 @@ const ButtonText = styled.Text`
   textAlign: center;
 `;
 
-const SignUpLink = styled.TouchableHighlight`
-  padding: 10px;
-  marginTop: 20px;
-`;
-
-const SignUpLinkText = styled.Text`
-  color: #999;
-  fontWeight: bold;
-  fontSize: 16px;
-  textAlign: center;
-`;
-
-export { Container, Logo, Input, ErrorMessage, Button, ButtonText, SignUpLink, SignUpLinkText };
+export { Container, Logo, Input, ErrorMessage, Button, ButtonText };
