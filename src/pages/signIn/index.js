@@ -19,6 +19,10 @@ import {
 } from './styles';
 
 export default class SignIn extends Component {
+  constructor(props){
+    super(props);
+  };
+
   static navigationOptions = {
     title: 'Login',
   };
@@ -49,37 +53,38 @@ export default class SignIn extends Component {
 
   handleSignInPress = async () => {
     if (this.state.email.length === 0 || this.state.password.length === 0) {
-      this.setState({ error: 'Preencha usuário e senha para continuar!' }, () => false);
-    } else {
-      try {
-
-        this.setState({ loading: true });
-
-        const response = await this.miliaService.authenticate(this.state.email, this.state.password);
-
-        await AsyncStorage.setItem('@Milia:token', response.data.token);
-
-        this.setState({ loading: false });
-
-        const resetAction = StackActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'Main' }),
-          ],
-        });
-
-        this.props.navigation.dispatch(resetAction);
-      } catch (_err) {
-        console.log(_err);
-        this.setState({ loading: false });
-
-        this.setState({ error: 'Houve um problema com o login, verifique suas credenciais!' });
-      }
+      return this.setState({ error: 'Preencha usuário e senha para continuar!' }, () => false);
     }
+
+    try {
+
+      this.setState({ loading: true });
+
+      const response = await this.miliaService.authenticate(this.state.email, this.state.password);
+
+      await AsyncStorage.setItem('@Milia:token', response.data.token);
+
+      this.setState({ loading: false });
+
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({ routeName: 'Dashboard' }),
+        ],
+      });
+
+      this.props.navigation.dispatch(resetAction);
+    } catch (_err) {
+      console.log(_err);
+      this.setState({ loading: false });
+
+      this.setState({ error: 'Houve um problema com o login, verifique suas credenciais!' });
+    }
+    
   };
 
   render() {
-    return (
+    return(
       <Container>
         {this.state.loading && 
         <Loader
