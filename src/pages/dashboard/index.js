@@ -3,12 +3,17 @@ import { GiftedChat } from 'react-native-gifted-chat'
 import { View, Text } from 'react-native'
 import MiliaService from '../../services/api';
 import styles from './styles';
+import Geolocation from '@react-native-community/geolocation';
 
 class Dashboard extends Component {
   state = {
     messages: [],
     typingText: '',
+    initialPosition: '',
+    lastPosition: '',
   }
+
+  watchID = null;
 
   miliaService = new MiliaService();
 
@@ -23,7 +28,24 @@ class Dashboard extends Component {
     return null;
   }
 
+  componentWillMount() {
+    this.watchID != null && Geolocation.clearWatch(this.watchID);
+  }
+
   componentDidMount() {
+    Geolocation.getCurrentPosition(
+      position => {
+        const initialPosition = JSON.stringify(position);
+        this.setState({initialPosition});
+      },
+      error => Alert.alert('Error', JSON.stringify(error)),
+      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+    );
+    this.watchID = Geolocation.watchPosition(position => {
+      const lastPosition = JSON.stringify(position);
+      this.setState({lastPosition});
+    });
+    
     this.setState({
       messages: [
         {
@@ -37,7 +59,7 @@ class Dashboard extends Component {
           },
         },
       ],
-    })
+    });
   }
 
   async onSend(messages = []) {
@@ -45,7 +67,9 @@ class Dashboard extends Component {
       messages: GiftedChat.append(previousState.messages, messages)
     }));
 
-    const paramsUser = {};
+    const paramsUser = {
+      lastPosition: this.state.lastPosition,
+    };
 
     this.setState({typingText: 'Milia está digitando...'});
     const result = await this.miliaService.askMilia(messages[0].text, paramsUser);
