@@ -50,7 +50,7 @@ class Dashboard extends Component {
       messages: [
         {
           _id: 1,
-          text: 'Hello developer',
+          text: 'Olá, bem-vindo de volta! Como posos te ajudar hoje?',
           createdAt: new Date(),
           user: {
             _id: 2,

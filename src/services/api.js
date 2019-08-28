@@ -34,6 +34,15 @@ class MiliaService {
 
     return ret;
   };
+
+  async askMilia(queryText, paramsUser){
+    const ret = await api.post('/ask-milia', {
+      queryText, 
+      paramsUser,
+    });
+
+    return ret;
+  };
 }
 
 export default MiliaService;

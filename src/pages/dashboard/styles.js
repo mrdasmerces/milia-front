@@ -8,7 +8,7 @@ import {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  footerText: { color: Colors.gray }
+  footerText: { marginLeft: 10 }
 });
 
 export default styles;
