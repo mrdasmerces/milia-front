@@ -74,10 +74,13 @@ class Dashboard extends Component {
     this.setState({typingText: 'Milia está digitando...'});
     const result = await this.miliaService.askMilia(messages[0].text, paramsUser);
 
-    this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, result.data.dialogflowResult),
-      typingText: ''
-    }));
+    for(const message of result.data.dialogflowResult) {
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, [message]),
+        typingText: '',
+      }));
+    }
+
   }
 
   render() {
