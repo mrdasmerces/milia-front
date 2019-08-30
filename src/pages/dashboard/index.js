@@ -50,7 +50,7 @@ class Dashboard extends Component {
       messages: [
         {
           _id: 1,
-          text: 'Olá, bem-vindo de volta! Como posos te ajudar hoje?',
+          text: 'Olá, bem-vindo de volta! Como posso te ajudar hoje?',
           createdAt: new Date(),
           user: {
             _id: 2,
@@ -61,6 +61,27 @@ class Dashboard extends Component {
       ],
     });
   }
+
+  onQuickReply = replies => {
+    this[replies[0].function](replies[0]);
+  }  
+
+  async findAPlace(replie) {
+    const newMessage = {
+      text: replie.newMessage,
+      createdAt: new Date(),
+      _id: Math.round(Math.random() * 1000000),
+      user: {
+        _id: 1
+      }
+    };
+
+    await this.onSend([newMessage]);
+  }
+
+  async goToPlace(replie) {
+    alert("Vou te levar pro mapa, em breve!!!")
+  }  
 
   async onSend(messages = []) {
     this.setState(previousState => ({
@@ -91,6 +112,7 @@ class Dashboard extends Component {
         user={{
           _id: 1,
         }}
+        onQuickReply={this.onQuickReply}
         renderFooter={this.renderFooter}
       />
     )

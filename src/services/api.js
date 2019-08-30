@@ -17,6 +17,7 @@ class MiliaService {
     
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          config.headers.accessToken = token;
         }
     
         return config;
