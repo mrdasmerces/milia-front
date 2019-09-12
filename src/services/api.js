@@ -37,7 +37,7 @@ class MiliaService {
   };
 
   async askMilia(queryText, paramsUser){
-    const ret = await api.post('/ask-milia', {
+    const ret = await api.post('/ask-milia?originChannel=App', {
       queryText, 
       paramsUser,
     });
