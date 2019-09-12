@@ -16,6 +16,8 @@ import {
   Button,
 } from 'react-native';
 
+import PropTypes from 'prop-types';
+
 import {
   Header,
   DebugInstructions,
@@ -24,10 +26,35 @@ import {
 
 import styles from './styles';
 
+import AsyncStorage from '@react-native-community/async-storage';
+import { StackActions, NavigationActions } from 'react-navigation';
+
 class Main extends Component {
   static navigationOptions = {
     headerBackTitle: 'Início',
   };
+
+  static propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+      dispatch: PropTypes.func,
+    }).isRequired,
+  };
+
+  async componentWillMount() {
+    const token = await AsyncStorage.getItem('@Milia:token');
+    
+    if (token) {
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({ routeName: 'Dashboard' }),
+        ],
+      });
+
+      this.props.navigation.dispatch(resetAction);    
+    }
+  }
 
   render() {
     const { navigate } = this.props.navigation;
