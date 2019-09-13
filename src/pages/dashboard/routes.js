@@ -1,25 +1,62 @@
 import { createBottomTabNavigator, createAppContainer } from 'react-navigation';
-import React, { Component } from 'react'
-import { View, Text } from 'react-native'
+import React from 'react';
 import Chat from '../chat';
+import Itinerary from '../itinerary';
+import Resume from '../resume';
+import Account from '../account';
+import Timeline from '../timeline';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-class Explore extends Component {
-  render() {
-    return(
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <Text> This is my Explore screen </Text>
-      </View>
-    );
-  }
-}
+Icon.loadFont();
 
 const bottomTabNavigator = createBottomTabNavigator(
   {
-    Chat,
-    Explore,
+    Resumo: {
+      screen: Resume,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="home" size={25} color={tintColor} />
+        )
+      }
+    },
+    Roteiro: {
+      screen: Itinerary,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="map-signs" size={25} color={tintColor} />
+        )
+      }
+    },
+    Milia: {
+      screen: Chat,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="comments" size={25} color={tintColor} />
+        )
+      }
+    },    
+    'Diário': {
+      screen: Timeline,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="book" size={25} color={tintColor} />
+        )
+      }
+    },
+    Conta: {
+      screen: Account,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => (
+          <Icon name="user" size={25} color={tintColor} />
+        )
+      }
+    },
   },
   {
-    initialRouteName: 'Chat'
+    initialRouteName: 'Resumo',
+    tabBarOptions: {
+      activeTintColor: '#FC6663'
+    }
   }
 );
 
