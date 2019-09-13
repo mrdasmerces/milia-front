@@ -44,6 +44,12 @@ class MiliaService {
 
     return ret;
   };
+
+  async getResume(email){
+    const ret = await api.get(`/me?email=${email}`);
+
+    return ret;
+  };  
 }
 
 export default MiliaService;
