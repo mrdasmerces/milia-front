@@ -45,10 +45,12 @@ class Main extends Component {
     const token = await AsyncStorage.getItem('@Milia:token');
     
     if (token) {
+      const email = await AsyncStorage.getItem('@Milia:username');
+
       const resetAction = StackActions.reset({
         index: 0,
         actions: [
-          NavigationActions.navigate({ routeName: 'Dashboard' }),
+          NavigationActions.navigate({ routeName: 'Dashboard', params: { email } }),
         ],
       });
 

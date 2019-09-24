@@ -1,17 +1,34 @@
 import React, { Component } from 'react'
 import Geolocation from '@react-native-community/geolocation';
 import BottomNavigation from './routes';
+import MiliaService from '../../services/api';
 
 class Dashboard extends Component {
   state = {
     initialPosition: '',
     lastPosition: '',
+    email: '',
+    messages: [],
   }
+
+  miliaService = new MiliaService();
 
   watchID = null;
 
-  componentWillMount() {
+  async componentWillMount() {
+    const email = this.props.navigation.getParam('email');
+
+    this.setState({
+      email,
+    });
+
     this.watchID != null && Geolocation.clearWatch(this.watchID);
+
+    const messages = await this.miliaService.getPreviousMessages(email);
+
+    this.setState({
+      messages,
+    });
   }
 
   componentDidMount() {
@@ -31,7 +48,10 @@ class Dashboard extends Component {
 
   render() {
     return (
-      <BottomNavigation/>    
+      <BottomNavigation
+        screenProps={this.state}
+      >
+      </BottomNavigation>   
     )
   }
 };

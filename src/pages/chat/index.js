@@ -10,9 +10,12 @@ class Chat extends Component {
     messages: [],
     typingText: '',
     lastPosition: '',
+    email: '',
   }
 
   watchID = null;
+
+  previousMessages = [];
 
   miliaService = new MiliaService();
 
@@ -27,21 +30,35 @@ class Chat extends Component {
     return null;
   }
 
+  async componentWillMount() {
+    const email = this.props.screenProps.email;
+    const lastPosition = this.props.screenProps.lastPosition;
+    const messages = this.props.screenProps.messages.data;
+    this.previousMessages = messages;
+    this.setState({email, lastPosition});
+  }
+
   componentDidMount() {
-    this.setState({
-      messages: [
-        {
-          _id: 1,
-          text: 'Olá, bem-vindo de volta! Como posso te ajudar hoje?',
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'Milia',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
-        },
-      ],
-    });
+    const welcomeMessage = {
+      _id: 1,
+      text: 'Olá, bem-vindo de volta! Como posso te ajudar hoje?',
+      createdAt: new Date(),
+      user: {
+        _id: 2,
+        name: 'Milia',
+        avatar: 'https://images-milia.s3.amazonaws.com/Webp.net-resizeimage.jpg',
+      },
+    };
+
+    for(const message of this.previousMessages) {
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, [message]),
+      }));
+    }
+
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, [welcomeMessage])
+    }));
   }
 
   onQuickReply = replies => {
@@ -72,6 +89,7 @@ class Chat extends Component {
 
     const paramsUser = {
       lastPosition: this.state.lastPosition,
+      email: this.state.email,
     };
 
     this.setState({typingText: 'Milia está digitando...'});

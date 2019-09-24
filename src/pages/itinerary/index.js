@@ -1,14 +1,23 @@
 import React, { Component } from 'react';
 import {
   View,
-  TextInput,
-  StyleSheet,
+  Text,
+  Dimensions,
 } from 'react-native';
 
-import MapView, { PROVIDER_GOOGLE, ProviderPropType, Marker }from 'react-native-maps';
+import styles from './styles';
 
-let animationTimeout;
-const timeout = 2000;
+import MapView, { PROVIDER_GOOGLE, ProviderPropType, Marker } from 'react-native-maps';
+
+import MapViewDirections from 'react-native-maps-directions';
+import MiliaService from '../../services/api';
+
+const { width, height } = Dimensions.get('window');
+const ASPECT_RATIO = width / height;
+const LATITUDE_DELTA = 0.0922;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
+const GOOGLE_MAPS_APIKEY = 'AIzaSyCbhJQ9YTC73K1hRq0vH6fGkwBnW0BjeYc';
 
 class Itinerary extends Component {
   constructor(props) {
@@ -19,93 +28,101 @@ class Itinerary extends Component {
     };
 
     this.state = {
+      showToast: false,
+      itinerary: {},
+      mode: 'DRIVING',
+      actualDay: '',
       region : {
-        latitude: -26.253902,
-        longitude: 28.013295,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
       },
       markers: [
         {
-          image: 'http://icom-russia.com/bitrix/templates/icom/components/ithive/offices.list/.default/images/museum-icon.png',
           identifier: '1',
-          key: `31`,
-          latlng: {
-            latitude: -26.253902,
-            longitude: 28.013295,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,            
-          },
-          title: 'Golden Falcon Spur Steak Ranch',
-          description: 'Ótimas carnes!',
-        },
-        {
-          image: 'http://icom-russia.com/bitrix/templates/icom/components/ithive/offices.list/.default/images/museum-icon.png',
-          identifier: '2',
-          key: `21`,
-          latlng: {
-            latitude: -26.237854,
-            longitude: 28.008372,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,            
-          },
-          title: 'Museu do Apartheid',
-          description: 'Museu que narra a história da África do Sul no século 20 e o extinto sistema de apartheid.',
-        },               
+          latitude: 0,
+          longitude:0,
+          title: '',
+          description: '',
+        },              
       ]
     }
 
     this.mapStyle = require('../../utils/googleMapsStyle.json');
   }
 
-  componentWillUnmount() {
-    if (animationTimeout) {
-      clearTimeout(animationTimeout);
+  miliaService = new MiliaService();
+
+  async componentWillMount() {
+    const email = this.props.screenProps.email;
+
+    const itineraryData = await this.miliaService.getItinerary(email);
+
+    if(!itineraryData.data.actualTrip) {
+      return this.setState({
+        showToast: true,
+      });
     }
-  }
 
-  componentDidMount() {
-    animationTimeout = setTimeout(() => {
-      //this.map.fitToSuppliedMarkers(this.state.markers.map(m => m.identifier), false);
-    }, timeout);
-  }
+    if(!itineraryData.data.itinerary) {
+  
+    }
 
-  onRegionChange(region) {
-    this.setState({ region });
+
   }
 
   render() {
-    const styles = StyleSheet.create({
-      container: {
-        ...StyleSheet.absoluteFillObject,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-      },
-      map: {
-        ...StyleSheet.absoluteFillObject,
-      },
-    });
-
     return(
-      <View style={styles.container}>
+      <View style={styles.container}>  
         <MapView
           provider={this.props.provider}
           ref={ref => {
-            this.map = ref;
+            this.mapView = ref;
           }}
           style={styles.map}
-          region={this.state.region}
-          onRegionChange={(e) => this.onRegionChange(e)}
+          initialRegion={this.state.region}
         >
-          {this.state.markers.map(marker => (
+          {this.state.markers.map((coordinate, index) =>
           <Marker
-            identifier={marker.identifier}
-            key={marker.key}
-            coordinate={marker.latlng}
-            title={marker.title}
-            description={marker.description}
+            identifier={coordinate.identifier}
+            key={`coordinate_${index}`}
+            coordinate={coordinate}
+            title={coordinate.title}
+            description={coordinate.description}
           />
-          ))}
+          )}
+          {(this.state.markers.length >= 2) && (
+            <MapViewDirections
+              origin={this.state.region}
+              waypoints={this.state.markers}
+              destination={this.state.region}
+              apikey={GOOGLE_MAPS_APIKEY}
+              language='pt-BR'
+              strokeWidth={3}
+              strokeColor="#FC6663"
+              mode={this.state.mode}
+              optimizeWaypoints={true}
+              onStart={(params) => {
+                console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
+              }}
+              onReady={result => {
+                console.log(`Distance: ${result.distance} km`)
+                console.log(`Duration: ${result.duration} min.`)
+                this.mapView.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    right: (width / 10),
+                    bottom: (height / 10),
+                    left: (width / 10),
+                    top: (height / 10),
+                  },
+                });              
+              }}
+              onError={(errorMessage) => {
+                console.log('GOT AN ERROR');
+              }}
+            />
+          )}          
         </MapView>
       </View>
     );

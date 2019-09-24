@@ -15,6 +15,8 @@ import {
   Input,
   ErrorMessage,
   Button,
+  SignUpLink,
+  SignUpLinkText,
   ButtonText,
 } from './styles';
 
@@ -51,6 +53,10 @@ export default class SignIn extends Component {
     this.setState({ password });
   };
 
+  handleCreateAccountPress = () => {
+    this.props.navigation.navigate('SignUp', { idSessionSignup: '_' + Math.random().toString(36).substr(2, 9) });
+  }
+
   handleSignInPress = async () => {
     if (this.state.email.length === 0 || this.state.password.length === 0) {
       return this.setState({ error: 'Preencha usuário e senha para continuar!' }, () => false);
@@ -61,15 +67,16 @@ export default class SignIn extends Component {
       this.setState({ loading: true });
 
       const response = await this.miliaService.authenticate(this.state.email, this.state.password);
+      this.setState({ loading: false });
 
       await AsyncStorage.setItem('@Milia:token', response.data.token);
+      await AsyncStorage.setItem('@Milia:username', this.state.email);
 
-      this.setState({ loading: false });
 
       const resetAction = StackActions.reset({
         index: 0,
         actions: [
-          NavigationActions.navigate({ routeName: 'Dashboard' }),
+          NavigationActions.navigate({ routeName: 'Dashboard', params: { email: this.state.email } }),
         ],
       });
 
@@ -110,6 +117,9 @@ export default class SignIn extends Component {
         <Button onPress={this.handleSignInPress}>
           <ButtonText>Entrar</ButtonText>
         </Button>
+        <SignUpLink onPress={this.handleCreateAccountPress}>
+          <SignUpLinkText>Criar conta grátis</SignUpLinkText>
+        </SignUpLink>        
       </Container>
     );
   }

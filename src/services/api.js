@@ -45,11 +45,32 @@ class MiliaService {
     return ret;
   };
 
+  async miliaSignup(queryText, idSessionSignup){
+    const ret = await api.post('/milia-signup', {
+      queryText, 
+      idSessionSignup,
+    });
+
+    return ret;
+  };  
+
   async getResume(email){
     const ret = await api.get(`/me?email=${email}`);
 
     return ret;
-  };  
+  };
+  
+  async getPreviousMessages(email){
+    const ret = await api.get(`/messages?email=${email}`);
+
+    return ret;    
+  }
+
+  async getItinerary(email){
+    const ret = await api.get(`/itinerary?email=${email}`);
+
+    return ret;    
+  }  
 }
 
 export default MiliaService;
