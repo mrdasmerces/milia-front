@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { GiftedChat } from 'react-native-gifted-chat'
-import { View, Text } from 'react-native'
+import { View, Text, Linking } from 'react-native'
 import MiliaService from '../../services/api';
 import styles from './styles';
-import Geolocation from '@react-native-community/geolocation';
 
 class Chat extends Component {
   state = {
@@ -79,7 +78,15 @@ class Chat extends Component {
   }
 
   async goToPlace(replie) {
-    alert("Vou te levar pro mapa, em breve!!!")
+    Linking.canOpenURL(replie.mapUrl)
+    .then((supported) => {
+      if (!supported) {
+        console.log("Can't handle url: " + replie.mapUrl);
+      } else {
+        return Linking.openURL(replie.mapUrl);
+      }
+    })
+    .catch((err) => console.error('An error occurred', err));
   }  
 
   async onSend(messages = []) {
