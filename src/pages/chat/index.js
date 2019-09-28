@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { GiftedChat } from 'react-native-gifted-chat'
+import { GiftedChat, Bubble } from 'react-native-gifted-chat'
 import { View, Text, Linking } from 'react-native'
 import MiliaService from '../../services/api';
 import styles from './styles';
@@ -28,6 +28,19 @@ class Chat extends Component {
     }
     return null;
   }
+
+  renderBubble (props) {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: styles.bubbleColor.color,
+          }
+        }}
+      />
+    )
+  }  
 
   async componentWillMount() {
     const email = this.props.screenProps.email;
@@ -121,6 +134,7 @@ class Chat extends Component {
         }}
         onQuickReply={this.onQuickReply}
         renderFooter={this.renderFooter}
+        renderBubble={this.renderBubble}
       />
     )
   }
