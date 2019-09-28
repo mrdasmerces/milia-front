@@ -8,7 +8,8 @@ import {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  footerText: { marginLeft: 10 }
+  footerText: { marginLeft: 10 },
+  bubbleColor: { color: '#FC6663' },
 });
 
 export default styles;
