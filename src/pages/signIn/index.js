@@ -45,6 +45,22 @@ export default class SignIn extends Component {
 
   miliaService = new MiliaService();
 
+  async componentWillMount() {
+    const token = await AsyncStorage.getItem('@Milia:token');
+    const email = await AsyncStorage.getItem('@Milia:username');
+
+    if(token) {
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({ routeName: 'Dashboard', params: { email } }),
+        ],
+      });
+  
+      this.props.navigation.dispatch(resetAction);   
+    }
+  }
+
   handleEmailChange = (email) => {
     this.setState({ email });
   };

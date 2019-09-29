@@ -12,6 +12,8 @@ const Logo = styled.Image`
   marginBottom: 40px;
 `;
 
+const Image = styled.Image;
+
 const Input = styled.TextInput`
   paddingHorizontal: 20px;
   paddingVertical: 15px;
@@ -23,12 +25,25 @@ const Input = styled.TextInput`
   fontSize: 16px;
 `;
 
+const InputGray = styled.TextInput`
+  marginTop: 30px;
+  paddingHorizontal: 20px;
+  paddingVertical: 15px;
+  borderRadius: 5px;
+  backgroundColor: #F5F5F5;
+  alignSelf: stretch;
+  marginBottom: 15px;
+  fontSize: 16px;
+  marginHorizontal: 20px;
+`;
+
 const ErrorMessage = styled.Text`
   textAlign: center;
   color: #ce2029;
   fontSize: 16px;
   marginBottom: 15px;
   marginHorizontal: 20px;
+  marginTop: 40px;
 `;
 
 const Button = styled.TouchableHighlight`
@@ -59,4 +74,4 @@ const SignUpLinkText = styled.Text`
   textAlign: center;
 `;
 
-export { Container, Logo, Input, ErrorMessage, Button, ButtonText, SignUpLink, SignUpLinkText };
+export { Container, Logo, Input, ErrorMessage, Button, ButtonText, SignUpLink, SignUpLinkText, InputGray, Image };

@@ -22,7 +22,36 @@ const styles = StyleSheet.create({
     padding: 4,
     backgroundColor: '#FFF',
     color: '#000',
-  },      
+  },
+  activeStepIconBorderColor: {
+    color: '#FC6663',
+  },
+  completedProgressBarColor: {
+    color: '#FC6663',
+  },
+  completedStepIconColor: {
+    color: '#FC6663',
+  },
+  activeLabelColor: {
+    color: '#FC6663',
+  },
+  buttonStep: {
+    padding: 20,
+    borderRadius: 5,
+    backgroundColor: '#FC6663',
+    alignSelf: 'stretch',
+    margin: 15,
+    marginHorizontal: 20,
+  },
+  nextBtnTextStyle: {
+    color: '#FC6663',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',   
+  },
+  textStyle: {
+    fontSize: 16,
+  }
 });
 
 export default styles;

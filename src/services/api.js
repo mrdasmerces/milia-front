@@ -4,12 +4,17 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 class MiliaService {
   static api;
+  static googleApi;
 
   constructor(){
     api = axios.create({
       baseURL: 'https://909qolbumk.execute-api.us-east-1.amazonaws.com/dev',
       //baseURL: 'http://localhost:3001',
     });
+
+    googleApi = axios.create({
+      baseURL: 'https://maps.googleapis.com/maps/api/place',
+    });    
 
     api.interceptors.request.use(async (config) => {
       try {
@@ -70,6 +75,16 @@ class MiliaService {
     const ret = await api.get(`/itinerary?email=${email}`);
 
     return ret;    
+  }
+  
+  async buildItinerary(params){
+    const ret = await api.post('/itinerary', params);
+    return ret;    
+  }
+  
+  async getHotel(hotelName, googleApiKey){
+    const ret = await googleApi.get(`/findplacefromtext/json?input=hotel+${hotelName}&inputtype=textquery&fields=place_id,photos,formatted_address,name,rating,opening_hours,geometry&language-pt-BR&key=${googleApiKey}`);
+    return ret;
   }  
 }
 
