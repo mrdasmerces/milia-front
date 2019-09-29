@@ -3,11 +3,13 @@ import {
   View,
   Text,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 
 import styles from './styles';
 import { InputGray, ErrorMessage, Image } from '../signIn/styles';
 
+import DraggableFlatList from 'react-native-draggable-flatlist'
 import MapView, { ProviderPropType, Marker } from 'react-native-maps';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
 import RadioForm from 'react-native-simple-radio-button';
@@ -192,11 +194,63 @@ class Itinerary extends Component {
 
     const itinerary = await this.miliaService.buildItinerary(params);
 
-    alert(itinerary);
+    const draggableItens = [];
+    for(const day of itinerary.data.days) {
+      const dayIndex = day.name;
+      let label = `${dayIndex}:`
+      for(const marker of day.markers) {
+        label = label.concat(` ${marker.title},`)
+      }
+      label = label.concat(' etc.')
+      draggableItens.push({dayIndex, label});
+    }
+
+    this.setState({
+      loading: false,
+      attractionsList: draggableItens.map(d => ({
+        key: d.dayIndex,
+        label: d.label,
+        backgroundColor: '#FC6663',
+      })),
+      itinerary: itinerary.data
+     });
+     
   };  
 
-  onSubmitStep = () => {
-    alert('epa');
+  onSubmitStep = async () => {
+    this.setState({
+      loading: true,
+    });
+
+    const newItineraryReOrdened = [];
+
+    for(let actualDay = 1; actualDay <= this.state.attractionsList.length; actualDay++){
+      for(const oldDay of this.state.itinerary.days) {
+        if(this.state.attractionsList[actualDay-1].key === oldDay.name) {
+          newItineraryReOrdened.push({
+            name: `Dia ${actualDay}`,
+            markers: oldDay.markers
+          });
+
+          break;
+        }
+      }
+    }
+
+    const newItinerary = {
+      hotelLocation: this.state.itinerary.hotelLocation,
+      days: newItineraryReOrdened,
+    };
+
+    await this.miliaService.updateItinerary({newItinerary, tripId: this.state.actualTrip.tripId})
+
+    this.setActualItineraryDay(this.state.actualTrip, newItinerary);
+
+    this.setState({
+      itinerary: newItinerary,
+      buildItinerary: false,
+      loading: false,
+    });
   };
   
   onSelectProfile = (value) => {
@@ -205,6 +259,27 @@ class Itinerary extends Component {
       radio_props_description_actual: radio_props_description[value],
     })
   } 
+
+  renderItem = ({ item, index, move, moveEnd, isActive }) => {
+    return (
+      <TouchableOpacity
+        style={{ 
+          height: 100, 
+          backgroundColor: isActive ? 'blue' : item.backgroundColor,
+          alignItems: 'center', 
+          justifyContent: 'center' 
+        }}
+        onLongPress={move}
+        onPressOut={moveEnd}
+      >
+        <Text style={{ 
+          fontWeight: 'bold', 
+          color: 'white',
+          fontSize: 16,
+        }}>{item.label}</Text>
+      </TouchableOpacity>
+    )
+  }  
 
   render() {
     return(
@@ -264,8 +339,17 @@ class Itinerary extends Component {
               previousBtnText={'Anterior'}
               onSubmit={this.onSubmitStep} 
               errors={this.state.errors}>
-              <View style={{ alignItems: 'center' }}>
-                  <Text>This is the content within step 3!</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.textStyle}>Vamos lá!</Text>
+                <Text style={styles.textStyle}>Esses são os seus locais selecionados!</Text>
+                <Text style={styles.textStyle}>Finalize para ver o mapa com o dia-a-dia.</Text>
+                <DraggableFlatList
+                  data={this.state.attractionsList}
+                  renderItem={this.renderItem}
+                  keyExtractor={(item, index) => `draggable-item-${item.key}`}
+                  scrollPercent={5}
+                  onMoveEnd={({ data }) => this.setState({ attractionsList: data })}
+                />
               </View>
             </ProgressStep>            
           </ProgressSteps>

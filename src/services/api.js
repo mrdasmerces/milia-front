@@ -81,6 +81,11 @@ class MiliaService {
     const ret = await api.post('/itinerary', params);
     return ret;    
   }
+
+  async updateItinerary(params){
+    const ret = await api.put('/itinerary', params);
+    return ret;    
+  }  
   
   async getHotel(hotelName, googleApiKey){
     const ret = await googleApi.get(`/findplacefromtext/json?input=hotel+${hotelName}&inputtype=textquery&fields=place_id,photos,formatted_address,name,rating,opening_hours,geometry&language-pt-BR&key=${googleApiKey}`);
