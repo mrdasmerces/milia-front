@@ -8,7 +8,7 @@ import {
 
 import styles from './styles';
 import { InputGray, ErrorMessage, Image } from '../signIn/styles';
-
+import Toast, {DURATION} from 'react-native-easy-toast'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import MapView, { ProviderPropType, Marker } from 'react-native-maps';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
@@ -59,7 +59,6 @@ class Itinerary extends Component {
       attractionsPerDay: 10,
       errors: false,
       buildItinerary: false,
-      showToast: false,
       itinerary: {},
       mode: 'WALKING',
       actualDay: '',
@@ -93,10 +92,7 @@ class Itinerary extends Component {
     const itineraryData = await this.miliaService.getItinerary(email);
 
     if(!itineraryData.data.actualTrip) {
-      return this.setState({
-        showToast: true,
-        loading: false,
-      });
+      return this.refs.toast.show('Ops, parece que você não tem nenhuma viagem próxima! Fale já com a Milia para cadastrar sua trip.', DURATION.FOREVER);
     }
 
     this.setState({
@@ -242,7 +238,7 @@ class Itinerary extends Component {
       days: newItineraryReOrdened,
     };
 
-    await this.miliaService.updateItinerary({newItinerary, tripId: this.state.actualTrip.tripId})
+    await this.miliaService.updateItinerary({itinerary: newItinerary, tripId: this.state.actualTrip.tripId})
 
     this.setActualItineraryDay(this.state.actualTrip, newItinerary);
 
@@ -284,6 +280,16 @@ class Itinerary extends Component {
   render() {
     return(
       <View style={styles.container}>
+        <Toast
+          ref="toast"
+          style={{backgroundColor:"#FC6663"}}
+          position='top'
+          positionValue={50}
+          fadeInDuration={750}
+          fadeOutDuration={1000}
+          opacity={0.8}
+          textStyle={{color:"#FFF"}}
+        />        
         {this.state.loading && 
         <Loader
           loading={this.state.loading} />
@@ -339,7 +345,7 @@ class Itinerary extends Component {
               previousBtnText={'Anterior'}
               onSubmit={this.onSubmitStep} 
               errors={this.state.errors}>
-              <View style={{ flex: 1 }}>
+              <View style={{ alignItems: 'center', flex: 1 }}>
                 <Text style={styles.textStyle}>Vamos lá!</Text>
                 <Text style={styles.textStyle}>Esses são os seus locais selecionados!</Text>
                 <Text style={styles.textStyle}>Finalize para ver o mapa com o dia-a-dia.</Text>
@@ -387,8 +393,8 @@ class Itinerary extends Component {
                   console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
                 }}
                 onReady={result => {
-                  console.log(`Distance: ${result.distance} km`)
-                  console.log(`Duration: ${result.duration} min.`)
+                  const duration = moment.utc().startOf('day').add({ minutes: result.duration }).format('H:mm');
+                  this.refs.toast.show(`${this.state.actualDay} - Duração: ${duration}. Distância total: ${result.distance.toFixed()} km.`, DURATION.FOREVER);
                   this.mapView.fitToCoordinates(result.coordinates, {
                     edgePadding: {
                       right: (width / 10),
