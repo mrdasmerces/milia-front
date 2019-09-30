@@ -8,8 +8,8 @@ class MiliaService {
 
   constructor(){
     api = axios.create({
-      //baseURL: 'https://909qolbumk.execute-api.us-east-1.amazonaws.com/dev',
-      baseURL: 'http://localhost:3001',
+      baseURL: 'https://909qolbumk.execute-api.us-east-1.amazonaws.com/dev',
+      //baseURL: 'http://localhost:3001',
     });
 
     googleApi = axios.create({
