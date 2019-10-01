@@ -136,12 +136,26 @@ class Chat extends Component {
       quickReplies: {
         type: 'radio',
         keepIt: false,
-        values: itinerary.itinerary.days.map((d, index) => ({
-          title: d.name,
-          value: index,
-          function: 'addToSpecificDay',
-        })),
-      },      
+        values: itinerary.itinerary.days.map((d, index) => {
+          const obj = {
+            value: index,
+            function: 'addToSpecificDay',
+          };
+
+          if(index === 0) {
+            obj.title = 'Hoje';
+            return obj;
+          }
+
+          if(index === 1) {
+            obj.title = 'Amanhã';
+            return obj;
+          }
+          
+          obj.title = d.name
+          return obj;
+        }),
+      },
     };     
 
     this.setState(previousState => ({
@@ -202,11 +216,25 @@ class Chat extends Component {
         quickReplies: {
           type: 'radio',
           keepIt: false,
-          values: itineraryToUpdate.days.map((d, index) => ({
-            title: d.name,
-            value: index,
-            function: 'addToSpecificDay',
-          })),
+          values: itineraryToUpdate.days.map((d, index) => {
+            const obj = {
+              value: index,
+              function: 'addToSpecificDay',
+            };
+
+            if(index === 0) {
+              obj.title = 'Hoje';
+              return obj;
+            }
+
+            if(index === 1) {
+              obj.title = 'Amanhã';
+              return obj;
+            }
+            
+            obj.title = d.name
+            return obj;
+          }),
         },      
       }; 
 
@@ -229,7 +257,7 @@ class Chat extends Component {
 
     const finalMessage = {
       _id: Math.round(Math.random() * 1000000),
-      text: `Sucesso! ${this.state.placeToAdd.title} foi adicionado no ${replie.title} do seu roteiro. Clique no botão para ver o roteiro atualizado.`,
+      text: `Sucesso! ${this.state.placeToAdd.title} foi adicionado para ${replie.title.toLowerCase()} no seu roteiro. Clique no botão para ver o roteiro atualizado.`,
       createdAt: new Date(),
       user: {
         _id: 2,
