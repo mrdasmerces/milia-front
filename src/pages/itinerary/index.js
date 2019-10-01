@@ -7,12 +7,14 @@ import {
 } from 'react-native';
 
 import styles from './styles';
-import { InputGray, ErrorMessage, Image } from '../signIn/styles';
+import { InputGray, ErrorMessage, Image, Button, ButtonText } from '../signIn/styles';
 import Toast, {DURATION} from 'react-native-easy-toast'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import MapView, { ProviderPropType, Marker } from 'react-native-maps';
+import getDirections from 'react-native-google-maps-directions';
 import { ProgressSteps, ProgressStep } from 'react-native-progress-steps';
 import RadioForm from 'react-native-simple-radio-button';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../../common/loader';
 
 import MapViewDirections from 'react-native-maps-directions';
@@ -30,6 +32,11 @@ const radio_props = [
   {label: 'Desbravador', value: 9 },
   {label: 'Aventureiro', value: 6 },
   {label: 'Curioso', value: 3 }
+];
+
+const radio_props_modes = [
+  {label: 'A pé', value: 'WALKING' },
+  {label: 'De carro', value: 'DRIVING' }
 ];
 
 const radio_props_description = {
@@ -254,6 +261,12 @@ class Itinerary extends Component {
       attractionsPerDay:value,
       radio_props_description_actual: radio_props_description[value],
     })
+  }
+  
+  onSelectMode = (value) => {
+    this.setState({
+      mode:value,
+    })
   } 
 
   renderItem = ({ item, index, move, moveEnd, isActive }) => {
@@ -275,11 +288,40 @@ class Itinerary extends Component {
         }}>{item.label}</Text>
       </TouchableOpacity>
     )
-  }  
+  }
+
+  handleOpenMaps = () => {
+    const data = {
+      source: {
+       latitude: this.state.region.latitude,
+       longitude: this.state.region.longitude,
+     },
+     destination: {
+      latitude: this.state.region.latitude,
+      longitude: this.state.region.longitude,
+    },
+     params: [
+       {
+         key: "travelmode",
+         value: this.state.mode        // may be "walking", "bicycling" or "transit" as well
+       },
+       {
+         key: "dir_action",
+         value: "navigate",
+       }
+     ],
+     waypoints: this.state.markers.map(m => ({
+       longitude: m.longitude,
+       latitude: m.latitude,
+     })),
+   };
+
+   getDirections(data)
+  }
 
   render() {
     return(
-      <View style={styles.container}>
+      <View style={styles.container}>    
         <Toast
           ref="toast"
           style={{backgroundColor:"#FC6663"}}
@@ -360,7 +402,7 @@ class Itinerary extends Component {
             </ProgressStep>            
           </ProgressSteps>
         }
-        {!this.state.buildItinerary && 
+        {!this.state.buildItinerary &&
           <MapView
           provider={this.props.provider}
           ref={ref => {
@@ -405,12 +447,28 @@ class Itinerary extends Component {
                   });              
                 }}
                 onError={(errorMessage) => {
-                  console.log('GOT AN ERROR');
+                  console.log(errorMessage);
                 }}
               />
-            )}          
+            )} 
         </MapView>
         }
+        {!this.state.buildItinerary &&
+        <View style={styles.inputContainer}>
+          <RadioForm
+            style={ { marginTop: 30 }}
+            buttonColor={styles.activeLabelColor.color}
+            selectedButtonColor={styles.activeLabelColor.color}
+            radio_props={radio_props_modes}
+            formHorizontal={true}
+            labelHorizontal={false}
+            onPress={this.onSelectMode}
+          />
+          <Button onPress={this.handleOpenMaps}>
+            <ButtonText> <Icon name="location-arrow" size={25}/> Ir para direções </ButtonText>
+          </Button> 
+        </View>
+        }      
       </View>
     );
   }

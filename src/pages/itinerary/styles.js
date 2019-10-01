@@ -11,18 +11,6 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  versionBox: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  versionText: {
-    padding: 4,
-    backgroundColor: '#FFF',
-    color: '#000',
-  },
   activeStepIconBorderColor: {
     color: '#FC6663',
   },
@@ -51,7 +39,13 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     fontSize: 16,
-  }
+  },
+  inputContainer: {
+    alignItems: 'center',
+    width: '100%',
+    maxHeight: 200,
+
+  },
 });
 
 export default styles;
