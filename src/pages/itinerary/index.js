@@ -45,6 +45,8 @@ const radio_props_description = {
   3: 'Você é curioso, mas nem tanto. Ritmo leve.',
 }
 
+let COUNT_RENDER = 0;
+
 class Itinerary extends Component {
   constructor(props) {
     super(props);
@@ -192,7 +194,7 @@ class Itinerary extends Component {
       hotelLocation: this.state.hotel,
       tripId: this.state.actualTrip.tripId,
       city: this.state.actualTrip.initialCity,
-      tripDays: moment(this.state.actualTrip.endTripDate).diff(moment(this.state.actualTrip.startTripDate), 'days'),
+      tripDays: moment(this.state.actualTrip.endTripDate).diff(moment(this.state.actualTrip.startTripDate), 'days')+1,
     }
 
     const itinerary = await this.miliaService.buildItinerary(params);
@@ -320,6 +322,18 @@ class Itinerary extends Component {
   }
 
   render() {
+    COUNT_RENDER++;
+    const newDayIndex = this.props.navigation.getParam('newDayIndex');
+    const newDay = this.props.navigation.getParam('newDay')
+
+    if(newDayIndex !== undefined && newDay) {
+      this.state.itinerary.days[newDayIndex] = newDay;
+
+      if(this.state.actualDay === `Dia ${newDayIndex+1}`) {
+        this.state.markers = newDay.markers;
+      }
+    }
+
     return(
       <View style={styles.container}>    
         <Toast

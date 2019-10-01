@@ -6,6 +6,9 @@ import styles from './styles';
 
 class Chat extends Component {
   state = {
+    placeToAdd: {},
+    itinerary: {},
+    dayChose: {},
     messages: [],
     typingText: '',
     lastPosition: '',
@@ -100,7 +103,157 @@ class Chat extends Component {
       }
     })
     .catch((err) => console.error('An error occurred', err));
-  }  
+  }
+  
+  async addToItinerary(replie) {
+    const placeMarker = JSON.parse(replie.marker);
+    const itinerary = JSON.parse(replie.itinerary);
+
+    const newMessage = {
+      text: replie.value,
+      createdAt: new Date(),
+      _id: Math.round(Math.random() * 1000000),
+      user: {
+        _id: 1
+      }
+    };
+
+    this.setState(previousState => ({
+      itinerary: itinerary,
+      placeToAdd: placeMarker,
+      messages: GiftedChat.append(previousState.messages, [newMessage]),
+    }));
+
+    const replieMessage = {
+      _id: placeMarker.identifier,
+      text: `Para qual dia do seu roteiro você quer adicionar ${placeMarker.title}?`,
+      createdAt: new Date(),
+      user: {
+        _id: 2,
+        name: 'Milia',
+        avatar: 'https://images-milia.s3.amazonaws.com/Webp.net-resizeimage.jpg',
+      },
+      quickReplies: {
+        type: 'radio',
+        keepIt: false,
+        values: itinerary.itinerary.days.map((d, index) => ({
+          title: d.name,
+          value: index,
+          function: 'addToSpecificDay',
+        })),
+      },      
+    };     
+
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, [replieMessage]),
+    }));
+  }
+
+  async navigateTo(replie) {
+    this.props.navigation.navigate(replie.value, { newDay: this.state.dayChoose, newDayIndex: replie.dayIndex });
+  }
+
+  async addToSpecificDay(replie) {
+    const newMessage = {
+      text: `${replie.title}.`,
+      createdAt: new Date(),
+      _id: Math.round(Math.random() * 1000000),
+      user: {
+        _id: 1
+      }
+    };
+
+    let replieMessage = {
+      _id: Math.round(Math.random() * 1000000),
+      createdAt: new Date(),
+      user: {
+        _id: 2,
+        name: 'Milia',
+        avatar: 'https://images-milia.s3.amazonaws.com/Webp.net-resizeimage.jpg',
+      },      
+    };
+
+    const itineraryToUpdate = this.state.itinerary.itinerary;
+    const dayChoose = itineraryToUpdate.days[replie.value];
+
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, [newMessage]),
+      typingText: 'Milia está digitando...',
+      dayChoose,
+    }));
+    
+
+    if(dayChoose.markers.filter(m => m.identifier === this.state.placeToAdd.identifier).length) {
+      replieMessage.text = 'Ops, parece que esse lugar já está incluso no dia que você quer adicionar.';
+
+      this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, [replieMessage]),
+      }));
+      
+      const reReplieMessage = {
+        _id: Math.round(Math.random() * 1000000),
+        text: `Para qual dia do seu roteiro você quer adicionar ${this.state.placeToAdd.title}?`,
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'Milia',
+          avatar: 'https://images-milia.s3.amazonaws.com/Webp.net-resizeimage.jpg',
+        },
+        quickReplies: {
+          type: 'radio',
+          keepIt: false,
+          values: itineraryToUpdate.days.map((d, index) => ({
+            title: d.name,
+            value: index,
+            function: 'addToSpecificDay',
+          })),
+        },      
+      }; 
+
+      return this.setState(previousState => ({
+        messages: GiftedChat.append(previousState.messages, [reReplieMessage]),
+        typingText: '',
+      }));
+    }
+
+    dayChoose.markers.push(this.state.placeToAdd);
+
+    itineraryToUpdate.days[replie.value] = dayChoose;
+
+    const newItinerary = {
+      hotelLocation: itineraryToUpdate.hotelLocation,
+      days: itineraryToUpdate.days,
+    };
+
+    await this.miliaService.updateItinerary({itinerary: newItinerary, tripId: this.state.itinerary.tripId})
+
+    const finalMessage = {
+      _id: Math.round(Math.random() * 1000000),
+      text: `Sucesso! ${this.state.placeToAdd.title} foi adicionado no ${replie.title} do seu roteiro. Clique no botão para ver o roteiro atualizado.`,
+      createdAt: new Date(),
+      user: {
+        _id: 2,
+        name: 'Milia',
+        avatar: 'https://images-milia.s3.amazonaws.com/Webp.net-resizeimage.jpg',
+      },
+      quickReplies: {
+        type: 'radio',
+        keepIt: false,
+        values: [{
+          title: 'Ir para o roteiro',
+          value: 'Roteiro',
+          dayIndex: replie.value,
+          function: 'navigateTo',
+        }],
+      },       
+    };
+
+    return this.setState(previousState => ({
+      itinerary: itineraryToUpdate,
+      messages: GiftedChat.append(previousState.messages, [finalMessage]),
+      typingText: '',
+    }));    
+  }
 
   async onSend(messages = []) {
     this.setState(previousState => ({
