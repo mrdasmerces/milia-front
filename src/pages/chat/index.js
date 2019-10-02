@@ -5,6 +5,7 @@ import MiliaService from '../../services/api';
 import styles from './styles';
 
 class Chat extends Component {
+
   state = {
     placeToAdd: {},
     itinerary: {},
@@ -46,9 +47,9 @@ class Chat extends Component {
   }  
 
   async componentWillMount() {
-    const email = this.props.screenProps.email;
-    const lastPosition = this.props.screenProps.lastPosition;
-    const messages = this.props.screenProps.messages.data;
+    const email = this.props.screenProps.state.email;
+    const lastPosition = this.props.screenProps.state.lastPosition;
+    const messages = this.props.screenProps.state.messages.data;
     this.previousMessages = messages;
     this.setState({email, lastPosition});
   }

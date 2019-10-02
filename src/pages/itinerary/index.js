@@ -96,7 +96,7 @@ class Itinerary extends Component {
   async componentWillMount() {
     this.setState({ loading: true });
 
-    const email = this.props.screenProps.email;
+    const email = this.props.screenProps.state.email;
 
     const itineraryData = await this.miliaService.getItinerary(email);
 

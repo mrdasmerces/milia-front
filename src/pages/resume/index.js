@@ -27,7 +27,7 @@ class Resume extends Component {
   async componentWillMount() {
     this.setState({ loading: true });
 
-    const email = this.props.screenProps.email;
+    const email = this.props.screenProps.state.email;
     this.setState({email});
 
     const resumeData = await this.miliaService.getResume(email);

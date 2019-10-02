@@ -49,7 +49,7 @@ class Dashboard extends Component {
   render() {
     return (
       <BottomNavigation
-        screenProps={this.state}
+        screenProps={{state: this.state, rootNavigation: this.props.navigation}}
       >
       </BottomNavigation>   
     )

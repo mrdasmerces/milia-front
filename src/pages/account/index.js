@@ -19,7 +19,6 @@ import {
 } from '../signIn/styles';
 
 class Account extends Component {
-
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func,
@@ -27,24 +26,21 @@ class Account extends Component {
     }).isRequired,
   };
 
-  logout = async () => {
-    await AsyncStorage.removeItem('@Milia:token');
-
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [
-        NavigationActions.navigate({ routeName: 'SignIn' }),
-      ],
-    });
-
-    this.props.navigation.dispatch(resetAction);    
-  }
-
   render() {
     return(
       <Container>
-        <Text> <Icon name="wrench" size={25} color={'#FC6663'} /> Homens trabalhando! Página da conta em breve. </Text>
-        <Button onPress={this.logout}>
+        <Text> <Icon name="wrench" size={25} color={'#FC6663'} /> Homens trabalhando! Funcionalidades em breve. </Text>
+        <Button onPress={async () => {
+          await AsyncStorage.removeItem('@Milia:token');
+          const resetAction = StackActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({ routeName: 'SignIn' }),
+            ],
+          });
+      
+          this.props.screenProps.rootNavigation.dispatch(resetAction);
+        }}>
           <ButtonText>Sair</ButtonText>
         </Button>    
       </Container>
