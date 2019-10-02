@@ -37,7 +37,16 @@ class Dashboard extends Component {
         const initialPosition = JSON.stringify(position);
         this.setState({initialPosition});
       },
-      error => alert('Error', JSON.stringify(error)),
+      error => {
+        this.setState({
+          initialPosition: JSON.stringify({
+            coords: {
+              latitude: -23.574333,
+              longitude: -46.623546,
+            }
+          })
+        })
+      },
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
     this.watchID = Geolocation.watchPosition(position => {

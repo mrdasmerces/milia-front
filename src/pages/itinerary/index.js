@@ -36,6 +36,8 @@ const radio_props = [
 
 const radio_props_modes = [
   {label: 'A pé', value: 'WALKING' },
+  {label: 'De transporte público', value: 'TRANSIT' },
+  {label: 'De bicicleta', value: 'BICYCLING' },
   {label: 'De carro', value: 'DRIVING' }
 ];
 
@@ -330,7 +332,7 @@ class Itinerary extends Component {
       if(this.state.itinerary.days && this.state.itinerary.days[newDayIndex]) this.state.itinerary.days[newDayIndex] = newDay;
 
       if(this.state.actualDay === `Dia ${newDayIndex+1}`) {
-        this.state.markers = newDay.markers;
+        if(this.state.markers) this.state.markers = newDay.markers;
       }
     }
 
@@ -402,12 +404,13 @@ class Itinerary extends Component {
               onSubmit={this.onSubmitStep} 
               errors={this.state.errors}>
               <View style={{ alignItems: 'center', flex: 1 }}>
-                <Text style={styles.textStyle}>Vamos lá!</Text>
-                <Text style={styles.textStyle}>Esses são os seus locais selecionados!</Text>
-                <Text style={styles.textStyle}>Finalize para ver o mapa com o dia-a-dia.</Text>
+                <Text style={styles.textStyle}>Vamos lá! Esse é seu roteiro, dia-a-dia.</Text>
+                <Text style={styles.textStyle}>Você pode ordenar os dias como quiser.</Text>
+                <Text style={styles.textStyle}>Experimente segurar e arrastar o dia pra ordenar!</Text>
                 <DraggableFlatList
                   data={this.state.attractionsList}
                   renderItem={this.renderItem}
+                  style={{marginTop: 30}}
                   keyExtractor={(item, index) => `draggable-item-${item.key}`}
                   scrollPercent={5}
                   onMoveEnd={({ data }) => this.setState({ attractionsList: data })}
@@ -449,6 +452,20 @@ class Itinerary extends Component {
                   console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
                 }}
                 onReady={result => {
+                  if(!result) {
+                    this.refs.toast.show(`${this.state.actualDay} - Nenhuma rota ${radio_props_modes.filter(r => r.value === this.state.mode)[0].label.toLowerCase()} disponível.`, DURATION.FOREVER);
+
+                    this.mapView.fitToCoordinates(this.state.markers, {
+                      edgePadding: {
+                        right: (width / 10),
+                        bottom: (height / 10),
+                        left: (width / 10),
+                        top: (height / 10),
+                      },
+                    });
+                    
+                    return;
+                  }
                   const duration = moment.utc().startOf('day').add({ minutes: result.duration }).format('H:mm');
                   this.refs.toast.show(`${this.state.actualDay} - Duração: ${duration}. Distância total: ${result.distance.toFixed()} km.`, DURATION.FOREVER);
                   this.mapView.fitToCoordinates(result.coordinates, {
