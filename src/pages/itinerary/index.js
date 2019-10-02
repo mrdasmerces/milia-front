@@ -327,7 +327,7 @@ class Itinerary extends Component {
     const newDay = this.props.navigation.getParam('newDay')
 
     if(newDayIndex !== undefined && newDay) {
-      this.state.itinerary.days[newDayIndex] = newDay;
+      if(this.state.itinerary.days && this.state.itinerary.days[newDayIndex]) this.state.itinerary.days[newDayIndex] = newDay;
 
       if(this.state.actualDay === `Dia ${newDayIndex+1}`) {
         this.state.markers = newDay.markers;
