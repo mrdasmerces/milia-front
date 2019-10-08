@@ -4,10 +4,12 @@ import {
   ScrollView, View, Text,
 } from 'react-native';
 
+import Modal from "react-native-modal";
 import { Card, CardContent, CardAction, CardButton, CardImage } from 'react-native-cards';
 
 import MiliaService from '../../services/api';
 import Loader from '../../common/loader';
+import styles from './styles';
 
 class Resume extends Component {
   state = {
@@ -20,6 +22,9 @@ class Resume extends Component {
     miliaText: 'Carregando...',
     email: '',
     loading: false,
+    visibleModalId: null,
+    visibleModal: null,
+    details: {},
   };
 
   miliaService = new MiliaService();
@@ -40,10 +45,54 @@ class Resume extends Component {
       buttonAction: resumeData.data.buttonAction,
       timelineText: resumeData.data.timelineText,
       miliaText: resumeData.data.miliaText,
+      details: resumeData.data.details,
     })
 
     this.setState({ loading: false });
   }
+
+  executeBottonAction = () => {
+    if(this.state.buttonAction === 'Milia' || this.state.buttonAction === 'Roteiro') {
+      return this.props.navigation.navigate(this.state.buttonAction);
+    }
+
+    this.setState({ visibleModal: 'scrollable' })
+  }
+
+  handleOnScroll = event => {
+    this.setState({
+      scrollOffset: event.nativeEvent.contentOffset.y,
+    });
+  };
+
+  handleScrollTo = p => {
+    if (this.scrollViewRef) {
+      this.scrollViewRef.scrollTo(p);
+    }
+  };
+
+  renderModalContent = () => (
+    <View style={styles.scrollableModal}>
+    <ScrollView
+      ref={ref => (this.scrollViewRef = ref)}
+      onScroll={this.handleOnScroll}
+      scrollEventThrottle={16}
+    >
+      <View style={styles.scrollableModalContent1}>
+        <Text style={styles.scrollableModalText1}>{this.state.details.placesVisited} 💡</Text>
+      </View>    
+      <View style={styles.scrollableModalContent2}>
+        <Text style={styles.scrollableModalText2}>{this.state.details.placesToVisit} 🗺</Text>
+      </View>
+      <View style={styles.scrollableModalContent4}>
+        <Text style={styles.scrollableModalText4}>{this.state.details.timeline} 🏆</Text>
+      </View>      
+      <View style={styles.scrollableModalContent3}>
+        <Text style={styles.scrollableModalText3}>{this.state.details.messages} ✉️</Text>
+      </View>           
+    </ScrollView>
+  </View>
+  );
 
   render() {
     const { navigate } = this.props.navigation
@@ -53,6 +102,17 @@ class Resume extends Component {
         <Loader
           loading={this.state.loading} />
         }
+        <Modal
+          isVisible={this.state.visibleModal}
+          onSwipeComplete={() => this.setState({ visibleModal: null })}
+          swipeDirection="down"
+          scrollTo={this.handleScrollTo}
+          scrollOffset={this.state.scrollOffset}
+          scrollOffsetMax={400 - 300}
+          onBackdropPress={() => this.setState({ visibleModal: null })}
+          style={styles.bottomModal}>
+            {this.renderModalContent()}
+        </Modal>        
         <Card>
           <CardImage 
             source={{uri: this.state.imageUri}} 
@@ -63,7 +123,7 @@ class Resume extends Component {
             separator={true}
             inColumn={false}>
             <CardButton
-              onPress={() => navigate(this.state.buttonAction)}
+              onPress={this.executeBottonAction}
               title={this.state.buttonTitle}
               color="#FC6663"
             />
@@ -96,7 +156,7 @@ class Resume extends Component {
             inColumn={false}>
             <CardButton
               onPress={() => navigate('Diário')}
-              title='Novo post'
+              title='Ver diário'
               color="#FC6663"
             />
           </CardAction>          

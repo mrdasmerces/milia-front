@@ -71,6 +71,18 @@ class MiliaService {
     return ret;    
   }
 
+  async getTimelinePosts(email){
+    const ret = await api.get(`/timeline?email=${email}`);
+
+    return ret;    
+  }
+  
+  async saveTimelinePost(params){
+    const ret = await api.post('/timeline', params);
+
+    return ret;    
+  }  
+
   async getItinerary(email){
     const ret = await api.get(`/itinerary?email=${email}`);
 

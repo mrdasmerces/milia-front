@@ -9,6 +9,7 @@ class Dashboard extends Component {
     lastPosition: '',
     email: '',
     messages: [],
+    timeline: [],
   }
 
   miliaService = new MiliaService();
@@ -25,9 +26,11 @@ class Dashboard extends Component {
     this.watchID != null && Geolocation.clearWatch(this.watchID);
 
     const messages = await this.miliaService.getPreviousMessages(email);
+    const timeline = await this.miliaService.getTimelinePosts(email);
 
     this.setState({
       messages,
+      timeline,
     });
   }
 
