@@ -29,12 +29,20 @@ target 'Milia' do
 
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+
   target 'MiliaTests' do
     inherit! :search_paths
     # Pods for testing
   end
 
+  # React Native Maps dependencies
+  rn_maps_path = '../node_modules/react-native-maps'
+  pod 'react-native-google-maps', :path => rn_maps_path
+  pod 'GoogleMaps'
+  pod 'Google-Maps-iOS-Utils'
+
   use_native_modules!
+
 end
 
 target 'Milia-tvOS' do
